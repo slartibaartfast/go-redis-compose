@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+  db:
+    build: ./db
+  api:
+    build: ./api
+    volumes:
+      - .:/code/go/src/go-redis-compose
+    working_dir: /code/go/src/go-redis-compose
+    command: go run main.go
+    links:
+      - db
+    environment:
+      REDIS_URL: db:6379
+
+    #ports:
+    #  - "8000:8000"
+    #depends_on:
+    #  - db
