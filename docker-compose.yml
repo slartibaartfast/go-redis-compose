@@ -13,7 +13,8 @@ services:
     volumes:
       - ./:/code/go/src/go-redis-compose
     working_dir: /code/go/src/go-redis-compose
-    command: go run main.go
+    # command: go run main.go
+    command: go build
     #links:
       #- db:db
     #  - db

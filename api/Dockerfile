@@ -60,4 +60,6 @@ WORKDIR $GOPATH
 
 COPY go-wrapper /usr/local/bin/
 RUN echo $PATH
-RUN go get -u github.com/go-redis/redis
+# RUN go get -u github.com/go-redis/redis
+RUN go get -u github.com/garyburd/redigo/redis
+RUN go get -u github.com/julienschmidt/httprouter
