@@ -1,6 +1,10 @@
 FROM alpine:3.6
 
 RUN apk add --no-cache ca-certificates
+RUN apk add --no-cache --update git
+
+WORKDIR /go/src/go-redis-compose
+COPY . .
 
 ENV GOLANG_VERSION 1.8.3
 
@@ -15,6 +19,7 @@ RUN set -eux; \
 		musl-dev \
 		openssl \
 		go \
+		git \
 	; \
 	export \
 # set GOROOT_BOOTSTRAP such that we can actually build Go
@@ -54,3 +59,5 @@ RUN mkdir -p "$GOPATH/src" "$GOPATH/bin" && chmod -R 777 "$GOPATH"
 WORKDIR $GOPATH
 
 COPY go-wrapper /usr/local/bin/
+RUN echo $PATH
+RUN go get -u github.com/go-redis/redis

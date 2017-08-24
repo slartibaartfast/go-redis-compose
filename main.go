@@ -1,7 +1,20 @@
 package main
 
-import "fmt"
+import (
+    "fmt"
+    "os"
+    "github.com/go-redis/redis"
+
+    // redis "gopkg.in/redis.v4"
+)
 
 func main() {
-    fmt.Println("Hello World")
+    client := redis.NewClient(&redis.Options{
+        Addr:     os.Getenv("REDIS_URL"),
+        Password: "", // no password set
+        DB:       0,  // use default DB
+    })
+
+    pong, err := client.Ping().Result()
+    fmt.Println(pong, err)
 }

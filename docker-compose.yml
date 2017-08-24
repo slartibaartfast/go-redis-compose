@@ -1,20 +1,27 @@
-version: '3'
+version: '3.3'
 
 services:
+
   db:
     build: ./db
+    ports:
+      - "6379"
+    container_name: db
+
   api:
     build: ./api
     volumes:
-      - .:/code/go/src/go-redis-compose
+      - ./:/code/go/src/go-redis-compose
     working_dir: /code/go/src/go-redis-compose
     command: go run main.go
-    links:
+    #links:
+      #- db:db
+    #  - db
+    depends_on:
       - db
+
     environment:
       REDIS_URL: db:6379
 
     #ports:
     #  - "8000:8000"
-    #depends_on:
-    #  - db
