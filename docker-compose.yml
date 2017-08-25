@@ -13,8 +13,13 @@ services:
     volumes:
       - ./:/code/go/src/go-redis-compose
     working_dir: /code/go/src/go-redis-compose
-    # command: go run main.go
-    command: go build
+    command: go run main.go router.go routes.go models.go db.go handlers.go
+    #command: go build  # exit with code 0
+
+    # command: go run main.go  # can't find router...undefined: NewRouter
+    # command: go run go-redis-compose
+    # command: go install go-redis-compose
+    # command: go run
     #links:
       #- db:db
     #  - db
@@ -24,5 +29,5 @@ services:
     environment:
       REDIS_URL: db:6379
 
-    #ports:
-    #  - "8000:8000"
+    ports:
+      - "8080:8080"

@@ -19,7 +19,7 @@ func CatShow(w http.ResponseWriter, r *http.Request, p mux.Params) {
         w.WriteHeader(http.StatusOK)
 
         // var catshow Cat
-        catshow := FindAll()   // We'll work on this
+        catshow := FindAll()
 
         if err := json.NewEncoder(w).Encode(catshow); err != nil {
                 panic(err)
@@ -59,7 +59,7 @@ func CatHistory(w http.ResponseWriter, r *http.Request, _ mux.Params) {
 
         var cats Cats
 
-        cats = FindAll()  // We'll work on this
+        cats = FindAll()
 
         if err := json.NewEncoder(w).Encode(cats); err != nil {
                 panic(err)

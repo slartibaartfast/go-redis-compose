@@ -5,6 +5,7 @@ import (
         // s"time"
         "encoding/json"
         "strconv"
+        "os"
 
         "github.com/garyburd/redigo/redis"
         // a"github.com/go-redis/redis"
@@ -14,7 +15,8 @@ import (
 //var currentUserId int
 
 func RedisConnect() redis.Conn {
-	c, err := redis.Dial("tcp", ":6379")
+  c, err := redis.Dial("tcp", os.Getenv("REDIS_URL"))
+  //c, err := redis.Dial("tcp", "db:6379")
 	HandleError(err)
 	return c
 }

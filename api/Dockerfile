@@ -3,6 +3,7 @@ FROM alpine:3.6
 RUN apk add --no-cache ca-certificates
 RUN apk add --no-cache --update git
 
+ADD . /go/src/go-redis-compose
 WORKDIR /go/src/go-redis-compose
 COPY . .
 
