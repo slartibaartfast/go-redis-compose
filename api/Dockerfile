@@ -61,7 +61,8 @@ WORKDIR $GOPATH
 
 COPY go-wrapper /usr/local/bin/
 RUN echo $PATH
+RUN echo $GOPATH
 # RUN go get -u github.com/go-redis/redis
+# RUN go get -u github.com/basgys/goxml2json
 RUN go get -u github.com/garyburd/redigo/redis
 RUN go get -u github.com/julienschmidt/httprouter
-RUN go get -u github.com/basgys/goxml2json

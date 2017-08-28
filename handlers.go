@@ -1,141 +1,120 @@
 package main
 
 import (
-	  "encoding/json"
-		"encoding/xml"
-    "fmt"
-    "net/http"
-	  "io"
-	  "io/ioutil"
-		// s"strings"
-	  // s"strconv"
-	  "time"
-    // xj "github.com/basgys/goxml2json"
-    mux "github.com/julienschmidt/httprouter"
+	"encoding/json"
+	"encoding/xml"
+	//"fmt"
+	mux "github.com/julienschmidt/httprouter"
+	"io"
+	"io/ioutil"
+	"net/http"
+	"os"
+	"time"
 )
 
-
+// show json from thecatapi.com representing an individual cat
 func CatShow(w http.ResponseWriter, r *http.Request, p mux.Params) {
+	// set our header to json
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-        w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-        w.WriteHeader(http.StatusOK)
+	// we will store data in an Image structure
+	var image Image
 
-		    //var catshow Cat
-				var image Image
+	// load our struct with data retrieved by the FetchCat function
+	image = FetchCat(os.Getenv("CAT_URL"))
+	if err := json.NewEncoder(w).Encode(image); err != nil {
+		HandleError(err)
+	}
 
-				//catshow = FetchCat("http://thecatapi.com/api/images/get?format=xml&results_per_page=1")
-				image = FetchCat("http://thecatapi.com/api/images/get?format=xml&results_per_page=1")
+	// call a db function to load our cat image data into redis and print result
+	CreateCat(image.Image)
 
-				//if err := json.NewEncoder(w).Encode(catshow); err != nil {
-        if err := json.NewEncoder(w).Encode(image); err != nil {
-                panic(err)
-        }
-
-				//CreateCat(catshow)
-				CreateCat(image.Image)
-              w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-              w.WriteHeader(http.StatusCreated)
-
+	// write a response header with a created status value
+	w.WriteHeader(http.StatusCreated)
 }
 
-
-//func FetchCat(url string) Cat {
+// pass in a url and recieve data back per the Image struct
 func FetchCat(url string) Image {
+
+	// make an http client
 	var myClient = &http.Client{Timeout: 10 * time.Second}
 
-  //apiKey := "YouDontNeedToKnow"
+	// add an api key to the url if desired
+	//apiKey := "os.Getenv("CAT_API_KEY")"
 	//var query string
 	//query := url + apiKey
-  //r, err := myClient.Get()
+	//r, err := myClient.Get(query)
+
+	// open a connection using our url parameter
 	r, err := myClient.Get(url)
 	if err != nil {
-	//		return err
-	      fmt.Println(err)
+		HandleError(err)
 	}
 	defer r.Body.Close()
 
-  var body []byte
+	// read the response into a variable
+	var body []byte
 	body, err = ioutil.ReadAll(r.Body)
-	//xml := strings.NewReader(string(body))
-	fmt.Printf("the body: %s\n", body)
-
-  // unpack the response into our xml structs formats
-	var dict xmlResponse
-	xml.Unmarshal(body, &dict)
-	//fmt.Printf("unmarshalled xml: %s\n", Images)
-	fmt.Println("dict.Images: [%s]\n", dict.Images)
-
-	// convert to json
-	//var oneCat Cat
-  //var allCats []Cat  // struct Cats
-	var oneCat Image
-	//var allCats Images
-
-
-	for _, value := range dict.Images {
-					//oneCat.Id = value.Id
-					oneCat.Image.Id = value.Id
-					oneCat.Image.Url = value.Url
-					oneCat.Image.Source_Url = value.Source_Url
-
-					//allCats = append(allCats, oneCat)
-					//allCats = allCats.oneCat
+	//fmt.Printf("the body: %s\n", body)
+	if err != nil {
+		HandleError(err)
 	}
 
-	//jsonData, err := json.Marshal(allCats)
+	// unpack the response into our xmlResponse structs format
+	var dict xmlResponse
+	xml.Unmarshal(body, &dict)
 
-	//if err != nil {
-	//				fmt.Println(err)
-	//				//os.Exit(1)
-	//}
+	// loop through the xml, convert to json by copying values to Image struct
+	// note: you could also do this with a mapping struct
+	var oneCat Image
+	for _, value := range dict.Images {
+		oneCat.Image.Id = value.Id
+		oneCat.Image.Url = value.Url
+		oneCat.Image.Source_Url = value.Source_Url
+	}
 
-  //fmt.Println(string(jsonData))
-
-	//fmt.Printf("JSON for output: \n%s\n",allCats)
-
+	// return the json as an Image
 	return oneCat
 }
 
-// called from history endpoint
+// called from /history endpoint, returns all json strings from requests to /cat
 func CatHistory(w http.ResponseWriter, r *http.Request, _ mux.Params) {
+	// set Images to store our data
+	var cats Images
 
-        //var cats Cats
-				var cats Images
-				//var images Images
+	// run the db fucntion to return the saved json
+	cats = FindAll()
 
-        cats = FindAll()
-				//images.Images = cats
-
-        if err := json.NewEncoder(w).Encode(cats); err != nil {
-				//if err := json.NewEncoder(w).Encode(images.Images); err != nil {
-                panic(err)
-        }
+	// encode the data in our Images struct as json string and write it out
+	if err := json.NewEncoder(w).Encode(cats); err != nil {
+		HandleError(err)
+	}
 }
 
-
 // this gets called on post, which we are not worried about atm
+// TODO: finsih and test this
 func CatCreate(w http.ResponseWriter, r *http.Request, _ mux.Params) {
-      	var cat Cat
+	var cat Cat
 
-      	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
-      	HandleError(err)
+	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
+	HandleError(err)
 
-      	if err := r.Body.Close(); err != nil {
-      	        panic(err)
-      	}
+	if err := r.Body.Close(); err != nil {
+		panic(err)
+	}
 
-      	// Save JSON to Cat struct
-      	if err := json.Unmarshal(body, &cat); err != nil {
+	// Save JSON to Cat struct
+	if err := json.Unmarshal(body, &cat); err != nil {
 
-      	        w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-      	        w.WriteHeader(422)
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		w.WriteHeader(422)
 
-      	        if err := json.NewEncoder(w).Encode(err); err != nil {
-      	                panic(err)
-      	        }
-      	}
+		if err := json.NewEncoder(w).Encode(err); err != nil {
+			panic(err)
+		}
+	}
 
-      	CreateCat(cat)
-              w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-              w.WriteHeader(http.StatusCreated)
+	CreateCat(cat)
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusCreated)
 }

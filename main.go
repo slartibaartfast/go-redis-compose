@@ -1,36 +1,21 @@
 package main
 
 import (
-    // "fmt"
-    // "os"
-    // "github.com/go-redis/redis"
-
-    // redis "gopkg.in/redis.v4"
-
-    "log"
-  	"net/http"
+	"log"
+	"net/http"
 )
 
-//func main() {
-//    client := redis.NewClient(&redis.Options{
-//        Addr:     os.Getenv("REDIS_URL"),
-//        Password: "", // no password set
-//        DB:       0,  // use default DB
-//    })
-
-//    pong, err := client.Ping().Result()
-//    fmt.Println(pong, err)
-//}
-
 func main() {
-    	  router := NewRouter()
+	// set up our router, create a new instance of one
+	router := NewRouter()
 
-	      log.Fatal(http.ListenAndServe(":8080", router))
+	// let it listen on port :8080 or log the error on failure
+	log.Fatal(http.ListenAndServe(":8080", router))
 }
 
-
+// a general error handling function
 func HandleError(err error) {
-        if err != nil {
-                panic(err)
-        }
+	if err != nil {
+		panic(err)
+	}
 }

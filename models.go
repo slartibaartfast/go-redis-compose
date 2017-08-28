@@ -1,71 +1,37 @@
 package main
 
 import (
-  "encoding/xml"
-  // s"encoding/json"
+	"encoding/xml"
 )
 
-//TODO: you might only need the cat struct.  Just add all queries to the external
-// cat api to it, use it to return them one at the /cat endpoints
-// FindAll to give them the history endpoint
-
-// cats structure
+// cat structure, for storing json related to images of cats
 type Cat struct {
-        Id           string  `json:"id"`          // the id from the cat api (used to be our internal int id)
-        Url          string  `json:"url"`         // the original url (tumblr, imgur, redit, ...)
-        Source_Url   string  `json:"source_url"`  // url of the image on the cat api
+	Id         string `json:"id"`         // the id from the cat api (used to be our internal int id)
+	Url        string `json:"url"`        // the original url (tumblr, imgur, redit, ...)
+	Source_Url string `json:"source_url"` // url of the image on the cat api
 }
 
 type Image struct {
-    Image  Cat  `json:"image"`
+	Image Cat `json:"image"` // let data from a cat struct be an Image
 }
 
 type Images struct {
-    Images []Cat `json:"images"`
-    //Images Cats `json:"images"`
+	Images []Cat `json:"images"` //let a dictionary of cat data be Images
 }
 
-//type jsonImages struct {
-//
-//}
-
-// to match the cat api xml output
-// not calling this anymore ?
-type xmlImages struct {
-  Response   xml.CharData `xml:"response"`
-      Data   xml.CharData    `xml:"data"`
-          Images  xml.CharData  `xml:"images>image"`
-              //Image []struct {
-              Image xml.CharData `xml:image`
-                  Url    xml.CharData `xml:"url"`
-                  Id     xml.CharData    `xml:"id"`
-                  Source_Url  xml.CharData  `xml:"Source_Url"`
-              //} `xml:"image"`
-
-}
-
-
+// structure to match the cat api xml output so that it may be mapped to
 type xmlResponse struct {
-	Response   xml.Name  `xml:"response"`
-  //FirstImage string    `xml:"data>images>image"`
-	Images []xmlImage `xml:"data>images>image"`
+	Response xml.Name   `xml:"response"`
+	Images   []xmlImage `xml:"data>images>image"`
 }
 
-
+// cat image data xml structure per thecatapi.com schema
 type xmlImage struct {
-      Image xml.Name  `xml:"image"`
-      Url    string `xml:"url"`
-      Id     string    `xml:"id"`
-      Source_Url  string  `xml:"source_url"`
+	Image      xml.Name `xml:"image"`
+	Url        string   `xml:"url"`
+	Id         string   `xml:"id"`
+	Source_Url string   `xml:"source_url"`
 }
 
-
+// slice of Cat
 type Cats []Cat
-
-
-// history structure, all the queries that have been made to Cats
-//type Query struct {
-//        Id             int     // our internal id for this record
-//        Image_Url      string  // url on the cat api
-//        Source_Url     string  // the source (tumblr, imgur, redit, ...)
-//}
