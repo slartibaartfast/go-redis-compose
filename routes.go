@@ -28,6 +28,7 @@ var routes = Routes{
                 CatShow,
         },
         // POST to create a cat record
+        // you don't need this
         Route{
                 "CatCreate",
                 "POST",
