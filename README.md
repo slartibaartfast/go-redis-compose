@@ -25,7 +25,7 @@ Create a file, go-redis-compose/api-key.env, and save your cat api key in it.  T
 Open docker-compose.yml and edit the api Volumes so that your absolute path gets mapped.
 
 >Volumes:
->  - </your/absolute/path/>/go-redis-compose:/code/go/src/go-redis-compose
+>  \- </your/absolute/path/>/go-redis-compose\:/code/go/src/go-redis-compose
 
 Start a swarm engine:
 
