@@ -16,6 +16,7 @@ func main() {
 // a general error handling function
 func HandleError(err error) {
 	if err != nil {
+		log.Fatal(err)
 		panic(err)
 	}
 }

@@ -14,7 +14,7 @@ func RedisConnect() redis.Conn {
 	return c
 }
 
-// Purge old data and add seed data for testing
+// Purge old data and add seed data; for testing
 func init() {
 	// connect to redis
 	c := RedisConnect()

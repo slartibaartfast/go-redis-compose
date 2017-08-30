@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"encoding/xml"
-	//"fmt"
+	"fmt"
 	mux "github.com/julienschmidt/httprouter"
 	"io"
 	"io/ioutil"
@@ -21,7 +21,8 @@ func CatShow(w http.ResponseWriter, r *http.Request, p mux.Params) {
 	var image Image
 
 	// load our struct with data retrieved by the FetchCat function
-	image = FetchCat(os.Getenv("CAT_URL"))
+	// image = FetchCat(os.Getenv("CAT_URL"))
+	image = FetchCat()
 	if err := json.NewEncoder(w).Encode(image); err != nil {
 		HandleError(err)
 	}
@@ -34,28 +35,50 @@ func CatShow(w http.ResponseWriter, r *http.Request, p mux.Params) {
 }
 
 // pass in a url and recieve data back per the Image struct
-func FetchCat(url string) Image {
+// TODO: separate some of this into other functions
+func FetchCat() Image {
+	// make an http client and set our connection timeout
+	client := &http.Client{Timeout: 10 * time.Second}
 
-	// make an http client
-	var myClient = &http.Client{Timeout: 10 * time.Second}
+	// set up our url string
+	baseUrl := os.Getenv("CAT_URL")
+	action := "images/get?"
 
-	// add an api key to the url if desired
-	//apiKey := "os.Getenv("CAT_API_KEY")"
-	//var query string
-	//query := url + apiKey
-	//r, err := myClient.Get(query)
+	// read the Docker Secrets file "api_key", and check for errors
+	b, err := ioutil.ReadFile(os.Getenv("CAT_API_KEY_PASSWORD_FILE"))
+  if err != nil {
+      HandleError(err)
+  }
 
-	// open a connection using our url parameter
-	r, err := myClient.Get(url)
+	// convert content of secrets file to a string
+  apiKey := "api_key=" + string(b)
+
+  // set up our new request with the beggining of the url string
+	req, err := http.NewRequest("GET", baseUrl + action, nil)
 	if err != nil {
 		HandleError(err)
 	}
-	defer r.Body.Close()
+
+	// add parameters to our url and encode them
+	query := req.URL.Query()
+	query.Add("api_key", apiKey)
+	query.Add("format", "xml")
+	query.Add("results_per_page", "1")
+	req.URL.RawQuery = query.Encode()
+
+	// add a header to be polite and possibley negate cross site request forgery
+	req.Header.Set("X-Requested-With", "XMLHttpRequest")
+
+	// open a connection, make our request and defer closure of the connection
+	resp, err := client.Do(req)
+	if err != nil {
+		HandleError(err)
+	}
+	defer resp.Body.Close()
 
 	// read the response into a variable
 	var body []byte
-	body, err = ioutil.ReadAll(r.Body)
-	//fmt.Printf("the body: %s\n", body)
+	body, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
 		HandleError(err)
 	}
@@ -65,10 +88,11 @@ func FetchCat(url string) Image {
 	xml.Unmarshal(body, &dict)
 
 	// loop through the xml, convert to json by copying values to Image struct
-	// note: you could also do this with a mapping struct
+	// note: it might be better to do this with a mapping struct
 	var oneCat Image
 	for _, value := range dict.Images {
 		oneCat.Image.Id = value.Id
+		fmt.Printf("the catid: %s\n", oneCat.Image.Id)
 		oneCat.Image.Url = value.Url
 		oneCat.Image.Source_Url = value.Source_Url
 	}
@@ -98,7 +122,6 @@ func CatCreate(w http.ResponseWriter, r *http.Request, _ mux.Params) {
 
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
 	HandleError(err)
-
 	if err := r.Body.Close(); err != nil {
 		panic(err)
 	}
