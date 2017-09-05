@@ -4,16 +4,16 @@ services:
 
   db:
     build: ./db # for local dockerfile development, ignored by swarm
-    image: trota/gorediscompose_db # pull form docker hub
-    #image: 127.0.0.1:5000/gorediscompose_db  # pull from local repo
+    #image: trota/gorediscompose_db # pull from docker hub
+    image: 127.0.0.1:5000/gorediscompose_db  # pull from local registry
     #ports:
       #- "6379"
     #container_name: db
 
   api:
     build: ./api # for local dockerfile development, swarm ignores
-    image: trota/gorediscompose_api # pull from docker hub
-    #image: 127.0.0.1:5000/gorediscompose_api # pull from local registry
+    # image: trota/gorediscompose_api # pull from docker hub
+    image: 127.0.0.1:5000/gorediscompose_api1 # pull from local registry
     volumes:
       - /Users/trota/code/go/src/go-redis-compose:/code/go/src/go-redis-compose
     working_dir: /code/go/src/go-redis-compose

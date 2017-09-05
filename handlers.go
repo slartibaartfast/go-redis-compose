@@ -10,6 +10,8 @@ import (
 	"net/http"
 	"os"
 	"time"
+	// "log"
+	log "github.com/sirupsen/logrus"
 )
 
 // show json from thecatapi.com representing an individual cat
@@ -39,6 +41,12 @@ func CatShow(w http.ResponseWriter, r *http.Request, p mux.Params) {
 func FetchCat() Image {
 	// make an http client and set our connection timeout
 	client := &http.Client{Timeout: 10 * time.Second}
+	//client, err := &http.Client{Timeout: 10 * time.Second}
+	//if err != nil {
+	//		HandleError(err)
+	//}
+	fmt.Println("fmt fetch ")
+	log.Println("log fetch ")
 
 	// set up our url string
 	baseUrl := os.Getenv("CAT_URL")
@@ -49,9 +57,12 @@ func FetchCat() Image {
   if err != nil {
       HandleError(err)
   }
+	log.Println("secrets body ", b)
+	log.Println("err ", err)
 
 	// convert content of secrets file to a string
   apiKey := "api_key=" + string(b)
+	log.Println("api_key ", apiKey)
 
   // set up our new request with the beggining of the url string
 	req, err := http.NewRequest("GET", baseUrl + action, nil)
@@ -68,6 +79,12 @@ func FetchCat() Image {
 
 	// add a header to be polite and possibley negate cross site request forgery
 	req.Header.Set("X-Requested-With", "XMLHttpRequest")
+
+	log.WithFields(log.Fields{
+	  "api key": apiKey,
+	  "query": query,
+	  "request": req,
+	}).Info("Sending this")
 
 	// open a connection, make our request and defer closure of the connection
 	resp, err := client.Do(req)

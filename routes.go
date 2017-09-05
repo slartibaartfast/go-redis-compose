@@ -33,10 +33,10 @@ var routes = Routes{
 	},
 	// POST to create a cat record
 	// not using this atm
-	Route{
-		"CatCreate",
-		"POST",
-		"/cat",
-		CatCreate,
-	},
+	//Route{
+	//	"CatCreate",
+	//	"POST",
+	//	"/cat",
+	//	CatCreate,
+	//},
 }

@@ -5,12 +5,18 @@ import (
 	"fmt"
 	"github.com/garyburd/redigo/redis"
 	"os"
+	// "log"
+	log "github.com/sirupsen/logrus"
 )
 
 // connect to our redis database
 func RedisConnect() redis.Conn {
 	c, err := redis.Dial("tcp", os.Getenv("REDIS_URL"))
 	HandleError(err)
+	log.WithFields(log.Fields{
+	  "connection": "tcp",
+	  "Redis Url": os.Getenv("REDIS_URL"),
+	}).Info("Connected to Redis")
 	return c
 }
 
@@ -23,7 +29,8 @@ func init() {
 	// purge any existing data
 	reply, err := c.Do("FLUSHALL")
 	HandleError(err)
-	fmt.Println("FLUSHALL ", reply)
+	fmt.Println("fmt FLUSHALL ", reply)
+	log.Println("log FLUSHALL ", reply)
 
 	// add some data for testing
 	//	CreateCat(Cat{
