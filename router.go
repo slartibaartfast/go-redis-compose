@@ -12,7 +12,6 @@ func NewRouter() *mux.Router {
 	fmt.Println("fmt new router ", router)
 	log.Println("log new router")
 
-
 	// loop through our routes and save them
 	for _, route := range routes {
 		router.Handle(route.Method, route.Pattern, route.Handle)

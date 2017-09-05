@@ -54,18 +54,18 @@ func FetchCat() Image {
 
 	// read the Docker Secrets file "api_key", and check for errors
 	b, err := ioutil.ReadFile(os.Getenv("CAT_API_KEY_PASSWORD_FILE"))
-  if err != nil {
-      HandleError(err)
-  }
+	if err != nil {
+		HandleError(err)
+	}
 	log.Println("secrets body ", b)
 	log.Println("err ", err)
 
 	// convert content of secrets file to a string
-  apiKey := "api_key=" + string(b)
+	apiKey := "api_key=" + string(b)
 	log.Println("api_key ", apiKey)
 
-  // set up our new request with the beggining of the url string
-	req, err := http.NewRequest("GET", baseUrl + action, nil)
+	// set up our new request with the beggining of the url string
+	req, err := http.NewRequest("GET", baseUrl+action, nil)
 	if err != nil {
 		HandleError(err)
 	}
@@ -81,9 +81,9 @@ func FetchCat() Image {
 	req.Header.Set("X-Requested-With", "XMLHttpRequest")
 
 	log.WithFields(log.Fields{
-	  "api key": apiKey,
-	  "query": query,
-	  "request": req,
+		"api key": apiKey,
+		"query":   query,
+		"request": req,
 	}).Info("Sending this")
 
 	// open a connection, make our request and defer closure of the connection

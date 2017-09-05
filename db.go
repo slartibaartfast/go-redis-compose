@@ -14,8 +14,8 @@ func RedisConnect() redis.Conn {
 	c, err := redis.Dial("tcp", os.Getenv("REDIS_URL"))
 	HandleError(err)
 	log.WithFields(log.Fields{
-	  "connection": "tcp",
-	  "Redis Url": os.Getenv("REDIS_URL"),
+		"connection": "tcp",
+		"Redis Url":  os.Getenv("REDIS_URL"),
 	}).Info("Connected to Redis")
 	return c
 }
